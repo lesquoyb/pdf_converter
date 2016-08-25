@@ -3,18 +3,15 @@ import os
 import subprocess
 import pdfkit
 PYTHON_INTERP = "python"
-				#"D:\windows\programmes\Python27\python.exe"
 
-_7ZIP_PATH = "7za.exe"
 
-PATH_CONV = r'D:\Telechargements\Mega Folder\unzip'
-# r"/home/baptiste/Téléchargements/Mega Folder/unzip/"
+PATH_CONV = r'path/to/conv'
 
 error_list = []
 
 verbose = False
 
-options = {'encoding': "UTF-8", 'quiet': '', '--load-error-handling': 'ignore'} if not verbose else {'encoding': "UTF-8"}
+options = {'encoding': "UTF-8", '--load-error-handling': 'ignore'}
 
 def convert_ps_to_pdf(in_file):
     subprocess.call(["ps2pdf", "-dEPSCrop", in_file], stdout=subprocess.PIPE)
@@ -24,16 +21,13 @@ def convert_doc_to_pdf(in_file):
 
 def convert_chm(in_file):
     directory = os.path.splitext(in_file)[0]
-  #  subprocess.call([_7ZIP_PATH, "x",  in_file ])
     subprocess.call(["hh.exe", "-decompile", directory, in_file], stdout=subprocess.PIPE) # in fact 7zip is doing a far better job at decompressing chm files
 
 def change_ext_to_pdf(in_file):
     return os.path.splitext(in_file)[0]+".pdf"
 
 
-#TMP_FILE = open("tmp", "rw")
 def convert_web_to_pdf(in_file):
-	#TMP_FILE.write(in_file + " " + change_ext_to_pdf(in_file) + "\n")
     pdfkit.from_file(in_file, change_ext_to_pdf(in_file), options=options)
 
 
@@ -53,7 +47,6 @@ def main(convert):
 
 
     current = 0
-    print(PATH_CONV)
     for dirname, dirnames, filenames in os.walk(PATH_CONV):
         if verbose:
             print(str(current) + "/" + str(count) + " (" + str(100.0 * current / count) + "%)")
@@ -70,7 +63,6 @@ def main(convert):
                             current += 1
                         convert.get(key)(abs)
 
-
             except Exception as e:
                 error_list.append(abs)
                 if verbose:
@@ -78,6 +70,8 @@ def main(convert):
 
 if __name__ == '__main__':
 
+    if not verbose:
+        options['quiet'] = ''
 
     first = {
         ".doc": convert_doc_to_pdf,
@@ -100,7 +94,6 @@ if __name__ == '__main__':
         ".chm": convert_chm,
     }
     second = {
-        #".mht": convert_doc_to_pdf,
         ".htm": convert_web_to_pdf,
         ".html": convert_web_to_pdf,
     }
